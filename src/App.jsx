@@ -13,10 +13,10 @@ export default function App() {
    const [showNext, setShowNext] = useState(true);
    const [hasClear, setHasClear] = useState(false);
    const [hasOver, setHasOver] = useState(false);
-   const [tick, setTick] = useState(0);
 
    const timerRef = useRef(null);
    const finishTimeoutRef = useRef(null);
+   const autoRef = useRef(null);
 
    // Spawn random circles
    const generateCircles = (count) => {
@@ -35,15 +35,23 @@ export default function App() {
          clearTimeout(finishTimeoutRef.current);
          finishTimeoutRef.current = null;
       }
+      // Fix restart game before finish timeout for auto play
+      if (autoRef.current) {
+         clearTimeout(autoRef.current);
+         autoRef.current = null;
+      }
       // Start new game
+      // Reset mọi state
       setCircles(generateCircles(points));
       setNextNumber(1);
       setShowNext(true);
       setTime(0);
+      setAuto(false);
       setRunning(true);
       setHighlighted([]);
       setHasClear(false);
       setHasOver(false);
+      setHasPlayed(false);
    };
 
    // Timer game
@@ -68,6 +76,31 @@ export default function App() {
          setHighlighted((prev) => prev.filter((h) => !expiredIds.includes(h.id)));
       }
    }, [highlighted]);
+
+   // Auto play interval
+   useEffect(() => {
+      if (auto) {
+         autoRef.current = setTimeout(() => {
+            const nextCircle = circles.find((c) => c.id === nextNumber);
+            if (nextCircle) {
+               handleCircleClick(nextCircle.id);
+            }
+         }, 1000); // click mỗi 1 giây
+      } else {
+         clearTimeout(autoRef.current);
+      }
+      return () => clearTimeout(autoRef.current);
+   }, [auto, nextNumber]);
+
+   // Auto ON
+   const handleAutoON = () => {
+      setAuto(true);
+   };
+
+   // Auto OFF
+   const handleAutoOFF = () => {
+      setAuto(false);
+   };
 
    // Xử lý click
    const handleCircleClick = (id) => {
@@ -108,12 +141,7 @@ export default function App() {
                </div>
                <div>
                   Points:
-                  <input
-                     type="number"
-                     min="1"
-                     value={points}
-                     onChange={(e) => setPoints(parseInt(e.target.value) || 1)}
-                  />
+                  <input type="number" min="1" value={points} onChange={(e) => setPoints(parseInt(e.target.value))} />
                </div>
                <div>
                   Time: <span>{time.toFixed(1)}s</span>
@@ -126,8 +154,16 @@ export default function App() {
                      </button>
                      {running && (
                         <>
-                           {!auto && <button className="auto-btn">Auto Play ON</button>}
-                           {auto && <button className="auto-btn">Auto Play OFF</button>}
+                           {!auto && (
+                              <button className="auto-btn" onClick={handleAutoON}>
+                                 Auto Play ON
+                              </button>
+                           )}
+                           {auto && (
+                              <button className="auto-btn" onClick={handleAutoOFF}>
+                                 Auto Play OFF
+                              </button>
+                           )}
                         </>
                      )}
                   </>
