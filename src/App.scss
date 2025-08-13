@@ -1,0 +1,96 @@
+* {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
+
+html {
+   font-size: 62.5%;
+}
+
+body {
+   font-size: 1.6rem;
+}
+
+.game-container {
+   margin: 0 auto;
+   width: 567px;
+   height: 100vh;
+   border: 2px solid #333;
+   padding: 30px;
+   background: white;
+}
+
+.top-panel {
+   margin-bottom: 10px;
+   text-align: left;
+   .has-clear {
+      color: green;
+   }
+   input {
+      margin-left: 60px;
+   }
+   span {
+      margin-left: 66px;
+   }
+   strong {
+      font-weight: 900;
+      font-size: 2rem;
+   }
+   div {
+      margin-bottom: 5px;
+   }
+   button {
+      padding: 2px 30px;
+   }
+   .auto-btn {
+      margin-left: 10px;
+   }
+}
+.wrapper-play-area {
+   display: inline-block;
+   border: 2px solid #333;
+   margin-top: 10px;
+}
+.play-area {
+   position: relative;
+   width: 500px;
+   height: 500px;
+   background: #fff;
+}
+
+.circle {
+   background-color: white;
+   position: absolute;
+   width: 40px;
+   height: 40px;
+   border-radius: 50%;
+   border: 2px solid red;
+   color: black;
+   line-height: 1.5;
+   display: flex;
+   justify-content: center;
+   cursor: pointer;
+   font-weight: bold;
+}
+
+.circle.highlight {
+   background: red;
+   animation: fadeOut 5s forwards;
+}
+
+@keyframes fadeOut {
+   from {
+      opacity: 1;
+   }
+   to {
+      opacity: 0;
+   }
+}
+
+.countdown {
+   position: absolute;
+   top: 50%;
+   font-size: 12px;
+   color: white;
+}
