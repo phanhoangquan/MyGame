@@ -12,12 +12,13 @@ export default function App() {
    const [highlighted, setHighlighted] = useState([]);
    const [showNext, setShowNext] = useState(true);
    const [hasClear, setHasClear] = useState(false);
+   const [hasOver, setHasOver] = useState(false);
    const [tick, setTick] = useState(0);
 
    const timerRef = useRef(null);
    const finishTimeoutRef = useRef(null);
 
-   // Sinh vị trí ngẫu nhiên
+   // Spawn random circles
    const generateCircles = (count) => {
       const newCircles = [];
       for (let i = 1; i <= count; i++) {
@@ -27,12 +28,14 @@ export default function App() {
       }
       return newCircles;
    };
-
+   // Start game or Restart game
    const startGame = () => {
+      // Fix restart game before finish timeout
       if (finishTimeoutRef.current) {
          clearTimeout(finishTimeoutRef.current);
          finishTimeoutRef.current = null;
       }
+      // Start new game
       setCircles(generateCircles(points));
       setNextNumber(1);
       setShowNext(true);
@@ -40,6 +43,7 @@ export default function App() {
       setRunning(true);
       setHighlighted([]);
       setHasClear(false);
+      setHasOver(false);
    };
 
    // Timer game
@@ -54,14 +58,6 @@ export default function App() {
       return () => clearInterval(timerRef.current);
    }, [running]);
 
-   // Tick update countdown mỗi 100ms
-   useEffect(() => {
-      const interval = setInterval(() => {
-         setTick((t) => t + 1);
-      }, 100);
-      return () => clearInterval(interval);
-   }, []);
-
    // Tự xóa circle khi countdown hết
    useEffect(() => {
       const now = Date.now();
@@ -71,7 +67,7 @@ export default function App() {
          setCircles((prev) => prev.filter((c) => !expiredIds.includes(c.id)));
          setHighlighted((prev) => prev.filter((h) => !expiredIds.includes(h.id)));
       }
-   }, [tick, highlighted]);
+   }, [highlighted]);
 
    // Xử lý click
    const handleCircleClick = (id) => {
@@ -90,6 +86,10 @@ export default function App() {
          } else {
             setNextNumber((n) => n + 1);
          }
+      } else {
+         setRunning(false);
+         setHasOver(true);
+         setHasPlayed(true);
       }
    };
 
@@ -97,7 +97,15 @@ export default function App() {
       <div className="game-container">
          <div className="game-content">
             <div className="top-panel">
-               <div>{!hasClear ? <strong>LET'S PLAY</strong> : <strong className="has-clear">ALL CLEARED</strong>}</div>
+               <div>
+                  {hasClear ? (
+                     <strong className="has-clear">ALL CLEARED</strong>
+                  ) : hasOver ? (
+                     <strong className="has-over">GAME OVER</strong>
+                  ) : (
+                     <strong>LET'S PLAY</strong>
+                  )}
+               </div>
                <div>
                   Points:
                   <input
@@ -126,7 +134,7 @@ export default function App() {
                )}
             </div>
 
-            <div className="wrapper-play-area">
+            <div className={`wrapper-play-area ${hasOver ? 'game-over' : ''}`}>
                <div className="play-area">
                   {circles.map((circle) => {
                      const hl = highlighted.find((h) => h.id === circle.id);
